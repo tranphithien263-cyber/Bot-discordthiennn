@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👑 Discord Bot</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  background: #000;
+  min-height: 100vh;
+  color: #e5e7eb;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(88,101,242,0.3), transparent 50%),
+    radial-gradient(circle at 80% 100%, rgba(236,72,153,0.25), transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 500px;
+  background: rgba(15, 12, 25, 0.92);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 22px;
+  border: 1px solid rgba(88,101,242,0.3);
+  box-shadow: 0 20px 80px rgba(88,101,242,0.25);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.logo {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #5865F2, #7289DA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 24px rgba(88,101,242,0.5);
+}
+.title-block { flex: 1; }
+.title-block h1 { font-size: 17px; font-weight: 900; letter-spacing: 2px; color: #fff; }
+.title-block p { font-size: 10px; color: #6b7280; letter-spacing: 1.5px; font-weight: 700; margin-top: 2px; }
+.badge {
+  font-size: 9px; padding: 4px 8px;
+  background: rgba(107,114,128,0.15);
+  border: 1px solid #6b7280;
+  border-radius: 6px;
+  color: #9ca3af;
+  font-weight: 800;
+}
+.badge.on { background: rgba(234,179,8,0.15); border-color: #eab308; color: #facc15; }
+.badge.ok { background: rgba(34,197,94,0.15); border-color: #22c55e; color: #4ade80; }
+.badge.err { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #f87171; }
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 10.5px;
+  color: #9ca3af;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e5e7eb;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none;
+  border-color: #5865F2;
+  box-shadow: 0 0 0 3px rgba(88,101,242,0.15);
+}
+.field textarea { min-height: 70px; resize: vertical; }
+.field select { cursor: pointer; }
+.field select option { background: #1a1a2e; color: #fff; }
+.hint { font-size: 10px; color: #4b5563; margin-top: 5px; line-height: 1.4; }
+
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.option-btn {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #d1d5db;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.option-btn:hover { background: rgba(255,255,255,0.05); }
+.option-btn.selected {
+  background: linear-gradient(135deg, #5865F2, #7289DA);
+  color: #fff;
+  border-color: #7289DA;
+  box-shadow: 0 0 12px rgba(88,101,242,0.5);
+}
+
+.btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  font-family: inherit;
+}
+.btn-check { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); }
+.btn-check:hover:not(:disabled) { background: rgba(59,130,246,0.25); }
+.btn-primary { background: linear-gradient(135deg, #5865F2, #7289DA); color: #fff; box-shadow: 0 4px 24px rgba(88,101,242,0.5); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(88,101,242,0.7); }
+.btn-danger { background: rgba(220,38,38,0.1); color: #f87171; border: 1px solid rgba(220,38,38,0.4); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.result {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  display: none;
+  word-break: break-word;
+}
+.result.show { display: block; }
+.result.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.35); color: #4ade80; }
+.result.error { background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.35); color: #f87171; }
+.result.loading { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35); color: #fbbf24; }
+
+.stats {
+  display: none;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.stats.show { display: grid; }
+.stat-box {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.stat-box .num { font-size: 20px; font-weight: 900; color: #4ade80; line-height: 1; }
+.stat-box .num.blue { color: #60a5fa; }
+.stat-box .num.pink { color: #f472b6; }
+.stat-box .lbl { font-size: 9px; color: #6b7280; margin-top: 4px; letter-spacing: 1px; font-weight: 700; }
+
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.footer {
+  text-align: center;
+  font-size: 9.5px;
+  color: #4b5563;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">👑</div>
+    <div class="title-block">
+      <h1>DISCORD BOT</h1>
+      <p>SPAM TOOL v3</p>
+    </div>
+    <div class="badge" id="badge">READY</div>
+  </div>
+
+  <div class="field">
+    <label>🤖 Bot Token</label>
+    <input type="password" id="token" placeholder="MTk4... (dán token vào)">
+    <div class="hint">Developer Portal → Bot → Reset Token</div>
+  </div>
+
+  <button class="btn btn-check" id="checkBtn">🔍 KIỂM TRA + LOAD KÊNH</button>
+
+  <div class="field">
+    <label>📢 Chọn kênh cần spam</label>
+    <select id="channelSelect" disabled>
+      <option value="">— Bấm KIỂM TRA trước —</option>
+    </select>
+    <div class="hint">Hoặc nhập Channel ID thủ công bên dưới nếu không có trong list</div>
+  </div>
+
+  <div class="field">
+    <label>🔗 Hoặc nhập Channel ID thủ công</label>
+    <input type="text" id="manualChannel" placeholder="1234567890123456789 (không bắt buộc)">
+  </div>
+
+  <div class="field">
+    <label>📝 Nội dung tin nhắn</label>
+    <textarea id="content" placeholder="Nội dung muốn spam..."></textarea>
+  </div>
+
+  <div class="field">
+    <label>🔢 Số tin cần gửi</label>
+    <div class="option-grid" id="countOptions">
+      <button class="option-btn" data-count="25">25 TIN</button>
+      <button class="option-btn" data-count="50">50 TIN</button>
+      <button class="option-btn" data-count="75">75 TIN</button>
+      <button class="option-btn selected" data-count="0">∞ VÔ HẠN</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>⚡ Độ nhanh</label>
+    <div class="option-grid" id="speedOptions">
+      <button class="option-btn" data-speed="25" data-delay="0.04">25x</button>
+      <button class="option-btn" data-speed="50" data-delay="0.02">50x</button>
+      <button class="option-btn selected" data-speed="75" data-delay="0.0133">75x</button>
+      <button class="option-btn" data-speed="100" data-delay="0.01">100x</button>
+    </div>
+    <div class="hint" id="speedHint">Delay: 13ms/tin · 75 tin/giây</div>
+  </div>
+
+  <button class="btn btn-primary" id="startBtn">🚀 BẮT ĐẦU SPAM</button>
+  <button class="btn btn-danger" id="stopBtn" disabled>⏹ DỪNG</button>
+
+  <div class="result" id="result"></div>
+
+  <div class="stats" id="stats">
+    <div class="stat-box"><div class="num" id="statSent">0</div><div class="lbl">ĐÃ GỬI</div></div>
+    <div class="stat-box"><div class="num blue" id="statRate">0/s</div><div class="lbl">TỐC ĐỘ</div></div>
+    <div class="stat-box"><div class="num pink" id="statTarget">∞</div><div class="lbl">MỤC TIÊU</div></div>
+  </div>
+
+  <div class="footer">👑 DISCORD BOT v3 · VERCEL</div>
+</div>
+
+<script>
+var $ = function(id) { return document.getElementById(id); };
+var pollTimer = null;
+var running = false;
+var selectedCount = 0;
+var selectedSpeed = 75;
+var selectedDelay = 0.0133;
+var loadedChannels = [];
+
+function show(msg, cls) {
+  $('result').className = 'result show ' + (cls || '');
+  $('result').innerHTML = msg;
+}
+
+function setBadge(txt, cls) {
+  $('badge').textContent = txt;
+  $('badge').className = 'badge' + (cls ? ' ' + cls : '');
+}
+
+function setRunning(on) {
+  running = on;
+  $('startBtn').disabled = on;
+  $('stopBtn').disabled = !on;
+  $('checkBtn').disabled = on;
+  setBadge(on ? 'RUNNING' : 'READY', on ? 'on' : '');
+}
+
+async function checkAndLoadChannels() {
+  var token = $('token').value.trim();
+  if (!token) { show('⚠️ Chưa nhập Bot Token', 'error'); return; }
+
+  show('<span class="spinner"></span>Đang kiểm tra token + load danh sách kênh...', 'loading');
+  $('channelSelect').innerHTML = '<option value="">Đang load...</option>';
+
+  try {
+    var res = await fetch('/api/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token })
+    });
+    var data = await res.json();
+
+    if (!data.ok) {
+      show('❌ ' + data.error, 'error');
+      $('channelSelect').innerHTML = '<option value="">— Lỗi token —</option>';
+      setBadge('ERROR', 'err');
+      return;
+    }
+
+    loadedChannels = data.channels || [];
+    setBadge('OK · ' + loadedChannels.length + ' kênh', 'ok');
+
+    var sel = $('channelSelect');
+    sel.innerHTML = '';
+
+    if (loadedChannels.length === 0) {
+      sel.innerHTML = '<option value="">— Bot không ở server nào —</option>';
+      show('✅ Token hợp lệ: <b>' + data.botName + '#' + data.botDiscriminator + '</b><br>' +
+           '⚠️ Bot chưa được mời vào server nào.<br>' +
+           'Mời bot qua OAuth2 URL Generator → Authorize.', 'error');
+      return;
+    }
+
+    sel.innerHTML = '<option value="">— Chọn kênh —</option>';
+    for (var i = 0; i < loadedChannels.length; i++) {
+      var ch = loadedChannels[i];
+      var opt = document.createElement('option');
+      opt.value = ch.id;
+      opt.textContent = '#' + ch.name + ' · ' + ch.guildName;
+      sel.appendChild(opt);
+    }
+
+    show('✅ Token hợp lệ: <b>' + data.botName + '#' + data.botDiscriminator + '</b><br>' +
+         '📢 Load được <b>' + loadedChannels.length + '</b> kênh có quyền gửi tin.<br>' +
+         'Chọn kênh ở dropdown bên dưới.', 'success');
+  } catch (e) {
+    show('❌ Lỗi kết nối: ' + e.message, 'error');
+    $('channelSelect').innerHTML = '<option value="">— Lỗi —</option>';
+    setBadge('ERROR', 'err');
+  }
+}
+
+function getTargetChannel() {
+  var sel = $('channelSelect').value;
+  var manual = $('manualChannel').value.trim();
+  return manual || sel || '';
+}
+
+async function start() {
+  var token = $('token').value.trim();
+  var channel = getTargetChannel();
+  var content = $('content').value.trim();
+
+  if (!token) { show('⚠️ Chưa nhập Bot Token', 'error'); return; }
+  if (!channel) { show('⚠️ Chưa chọn kênh (dropdown hoặc nhập ID thủ công)', 'error'); return; }
+  if (!content) { show('⚠️ Chưa nhập nội dung', 'error'); return; }
+
+  show('<span class="spinner"></span>Đang khởi động bot...', 'loading');
+  $('stats').classList.add('show');
+  $('statSent').textContent = '0';
+  $('statRate').textContent = '0/s';
+  $('statTarget').textContent = selectedCount === 0 ? '∞' : selectedCount;
+
+  try {
+    var res = await fetch('/api/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: token,
+        channel: channel,
+        content: content,
+        delay: selectedDelay,
+        targetCount: selectedCount,
+        speed: selectedSpeed
+      })
+    });
+    var data = await res.json();
+
+    if (!data.ok) {
+      show('❌ ' + (data.error || 'Không khởi động được'), 'error');
+      $('stats').classList.remove('show');
+      return;
+    }
+
+    show('✅ Bot đang chạy · ' + selectedSpeed + 'x · ' + (selectedCount === 0 ? 'vô hạn' : selectedCount + ' tin'), 'success');
+    setRunning(true);
+    pollTimer = setInterval(pollStats, 1000);
+  } catch (e) {
+    show('❌ Lỗi kết nối: ' + e.message, 'error');
+    $('stats').classList.remove('show');
+  }
+}
+
+async function pollStats() {
+  try {
+    var res = await fetch('/api/stats');
+    var data = await res.json();
+    if (!data.ok) return;
+    $('statSent').textContent = data.sent || 0;
+    $('statRate').textContent = (data.rate || 0).toFixed(1) + '/s';
+
+    if (data.error) {
+      show('❌ Bot dừng: ' + data.error, 'error');
+      clearInterval(pollTimer);
+      setRunning(false);
+      return;
+    }
+    if (!data.running && data.sent > 0) {
+      clearInterval(pollTimer);
+      setRunning(false);
+      show('✅ Bot đã dừng. Tổng: ' + data.sent + ' tin.', 'success');
+    }
+  } catch (e) {}
+}
+
+async function stop() {
+  try {
+    await fetch('/api/stop', { method: 'POST' });
+    if (pollTimer) clearInterval(pollTimer);
+    setRunning(false);
+    show('⏹ Đã dừng bot.', 'success');
+  } catch (e) {
+    show('❌ ' + e.message, 'error');
+  }
+}
+
+document.querySelectorAll('#countOptions .option-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#countOptions .option-btn').forEach(function(b) {
+      b.classList.remove('selected');
+    });
+    this.classList.add('selected');
+    selectedCount = parseInt(this.dataset.count);
+  });
+});
+
+document.querySelectorAll('#speedOptions .option-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#speedOptions .option-btn').forEach(function(b) {
+      b.classList.remove('selected');
+    });
+    this.classList.add('selected');
+    selectedSpeed = parseInt(this.dataset.speed);
+    selectedDelay = parseFloat(this.dataset.delay);
+    $('speedHint').textContent = 'Delay: ' + Math.round(selectedDelay * 1000) + 'ms/tin · ' + selectedSpeed + ' tin/giây';
+  });
+});
+
+$('checkBtn').addEventListener('click', checkAndLoadChannels);
+$('startBtn').addEventListener('click', start);
+$('stopBtn').addEventListener('click', stop);
+</script>
+</body>
+  </html>
